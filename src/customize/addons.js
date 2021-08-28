@@ -1,16 +1,23 @@
+window.addEventListener('message', function (e) {
+    if (e.data !== "fetchState") return null;
+    const [state, event] = [window.cleanStateParams[0], window.cleanStateParams[1]];
+    const _frame = document.querySelector("iframe");
+    _frame.contentWindow.postMessage({ state, event }, "*");
+});
+
 const $q = (leaf) => document.querySelector(leaf);
 
-const setReactInputValue = (input, value) => {
-    const previousValue = input.value;
-    input.value = value;
-    const tracker = input._valueTracker;
-    if (tracker) tracker.setValue(previousValue);
-    // 'change' instead of 'input', see https://github.com/facebook/react/issues/11488#issuecomment-381590324
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-}
-
-
 const InputLineComponent = () => {
+
+    const setReactInputValue = (input, value) => {
+        const previousValue = input.value;
+        input.value = value;
+        const tracker = input._valueTracker;
+        if (tracker) tracker.setValue(previousValue);
+        // 'change' instead of 'input', see https://github.com/facebook/react/issues/11488#issuecomment-381590324
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
     const _getCheckbox = (name) => `<span>
     <label class="Polaris-Choice" for="${name}">
         <span class="Polaris-Choice__Control">
@@ -27,6 +34,8 @@ const InputLineComponent = () => {
         </span>
         <span class="Polaris-Choice__Label">${name}</span></label>
     </span>`;
+
+
 
 
     const _getRadio = (name) => `<div class="Polaris-Stack__Item">
@@ -104,7 +113,7 @@ const InputLineComponent = () => {
 
 const init = () => {
     const backBtn = $q("._2Ijyv");
-    if (backBtn) backBtn.style.display = "none";
+    //if (backBtn) backBtn.style.display = "none";
 }
 
 setTimeout(() => {
@@ -129,6 +138,16 @@ setTimeout(() => {
         const link = `<link rel="stylesheet" href="${url}" />`;
         head.insertAdjacentHTML("afterbegin", link);
     },
+
+    setReactInputValue: (input, value) => {
+        const previousValue = input.value;
+        input.value = value;
+        const tracker = input._valueTracker;
+        if (tracker) tracker.setValue(previousValue);
+        // 'change' instead of 'input', see https://github.com/facebook/react/issues/11488#issuecomment-381590324
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    },
+
     _getArr(state, str) {
         const _getValue = (str) => str[0].split('":"')[1].trim(1).slice(0, -1);
         const arr = Array.from(state.matchAll(`${str}\\|":".+?"`), _getValue);
@@ -185,6 +204,17 @@ setTimeout(() => {
         }
     },
     cleanState(state, event) {
+        window.cleanStateParams = arguments;
+        console.log("---cleanState---", { state, event });
+
+
+        const _frame = document.querySelector("iframe");
+
+
+        _frame.contentWindow.postMessage({ state, event }, "*");
+
+
+
         const saveBtn = this._saveBtn();
         if (!saveBtn) return null;
         const { target, params } = event;
@@ -331,5 +361,9 @@ setTimeout(() => {
 
     addInputLineCheckbox: (_, { current }) => {
         InputLineComponent().init(current);
+    },
+
+    _afterSettingUpdate() {
+        console.log(arguments);
     }
 });

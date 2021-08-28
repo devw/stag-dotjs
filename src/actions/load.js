@@ -2,8 +2,8 @@ const { init: initLanding } = require("./landing");
 const { init: initSignIn } = require("./sign-in");
 const { init: initRegistration } = require("./register");
 const { init: initRecovery } = require("./recovery");
-const { $q, $qq, togglePage } = require("../utils/");
-const { IDs } = require("../config");
+const { $q, $qq, togglePage, getUrlParameter } = require("../utils/");
+const { IDs, STORAGE_CONFIG } = require("../config");
 
 //TODO refactoring too code repetition
 
@@ -25,8 +25,6 @@ const placePopover = (e, el) => {
 };
 
 const openAccount = (e) => {
-    //TODO isActive to fix
-    // const { isActive } = JSON.parse(localStorage.getItem(STORAGE_CONFIG));
     if (!globalThis.__st?.cid) {
         e?.preventDefault();
         e?.stopPropagation();
@@ -42,7 +40,16 @@ const goToLanding = () => togglePage(IDs.LANDING_ID);
 
 const setBackBtn = () => $qq(`.js-back`).forEach(e => e.addEventListener("click", goToLanding));
 
+
+
 exports.loadActions = () => {
+    const { isActive } = JSON.parse(localStorage.getItem(STORAGE_CONFIG));
+
+    if (isActive === false && getUrlParameter("preview_login_popup") !== "true") return null;
+
+    const loginBtn = document.body.querySelector('[href="/account/login"]');
+    loginBtn?.addEventListener("click", (e) => e.preventDefault(), true);
+
     initContainer();
     initLanding();
     initSignIn();
